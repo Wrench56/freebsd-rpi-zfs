@@ -87,14 +87,8 @@ find "$work/root" -name '*.append' | while read -r f; do
 	rm "$f"
 done
 
-# Correct loader.env location (boot partition needs it and not root)
-mkdir -p "$work/fat/EFI/freebsd"
-cp "$work/root/boot/loader.env" "$work/fat/EFI/freebsd/loader.env"
-rm "$work/root/boot/loader.env"
-
 # Test the staging trees
 try "loader.conf must be name-free" test "$(grep -c 'vfs\.root\.mountfrom' "$work/root/boot/loader.conf")" -eq 0
-try "loader.env currdev wrong" grep -qx "currdev=zfs:$POOL/$BOOT_ENV:" "$work/fat/EFI/freebsd/loader.env"
 
 # Create the boot partition and the pool with its datasets
 makefs -t msdos -s "$((FAT_SECTORS * 512))" \
