@@ -1,0 +1,28 @@
+#!/bin/sh
+#
+# Saves/restores /var/logs on shutdown/boot
+
+# PROVIDE: logram
+# REQUIRE: mountcritremote
+# BEFORE: syslogd
+# KEYWORD: shutdown
+
+# shellcheck source=/dev/null
+# shellcheck disable=SC2034
+. /etc/rc.subr
+
+name=logram
+rcvar=logram_enable
+start_cmd=logram_start
+stop_cmd=logram_stop
+
+logram_start() {
+	/usr/local/sbin/logsync restore
+}
+
+logram_stop() {
+	/usr/local/sbin/logsync save
+}
+
+load_rc_config "$name"
+run_rc_command "$1"

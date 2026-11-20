@@ -1,0 +1,43 @@
+#!/bin/sh
+#
+# Keep loader.env's currdev pointed at the dataset mounted as /
+
+# PROVIDE: bootcfg
+# REQUIRE: filesystems
+# BEFORE: login
+# KEYWORD: nojail
+
+# shellcheck source=/dev/null
+# shellcheck disable=SC2034
+. /etc/rc.subr
+
+name=bootcfg
+rcvar=bootcfg_enable
+start_cmd=bootcfg_start
+stop_cmd=:
+
+: "${bootcfg_enable:=NO}"
+: "${bootcfg_fatdev:=/dev/mmcsd0s1}"
+: "${bootcfg_fatmnt:=/boot/msdos}"
+
+bootcfg_start() {
+	root=$(zfs list -H -o name / 2>/dev/null)
+	if [ -z "$root" ]; then
+		return 0
+	fi
+
+	mkdir -p "$bootcfg_fatmnt"
+	mount -t msdosfs "$bootcfg_fatdev" "$bootcfg_fatmnt" 2>/dev/null
+
+	envf=$bootcfg_fatmnt/EFI/freebsd/loader.env
+	if ! grep -qx "currdev=zfs:$root:" "$envf" 2>/dev/null; then
+		warn "loader.env does not name $root"
+		sed -i '' -e "s|^currdev=.*|currdev=zfs:$root:|" \
+			-e "s|^rootdev=.*|rootdev=zfs:$root:|" "$envf"
+	fi
+
+	umount "$bootcfg_fatmnt"
+}
+
+load_rc_config "$name"
+run_rc_command "$1"

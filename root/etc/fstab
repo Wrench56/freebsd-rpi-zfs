@@ -1,0 +1,2 @@
+tmpfs	/tmp		tmpfs	rw,size=16m,mode=1777	0	0
+tmpfs	/var/log	tmpfs	rw,size=32m,mode=0755	0	0

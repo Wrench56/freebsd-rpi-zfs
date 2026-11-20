@@ -1,0 +1,10 @@
+hostname="@HOSTNAME@"
+ifconfig_ue0="DHCP"
+
+zfs_enable="YES"
+zpool_reguid="@POOL@"
+growfs_enable="YES"
+powerd_enable="YES"
+sshd_enable="YES"
+logram_enable="YES"
+bootcfg_enable="YES"

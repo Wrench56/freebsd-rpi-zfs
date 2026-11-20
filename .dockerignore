@@ -1,0 +1,11 @@
+.git/
+out/
+.ruff_cache/
+__pycache__/
+**/__pycache__/
+*.pyc
+**/*.pyc
+
+# Any documentation
+*.md
+**/*.md

@@ -1,0 +1,29 @@
+#!/bin/sh
+
+# Mirrors /var/log to or from /var/log.persist ZFS dataset.
+#
+# The reason behind this is that /var/log on monitor systems
+# is a tmpfs to not degrade the SD card too much with each
+# write. However, periodically I want to save the logs (for
+# sysadmin purposes). A cron runs logsync (currently weekly)
+# to back up all the logs.
+
+set -eu
+
+persist=/var/log.persist
+if [ ! -d "$persist" ]; then
+	exit 0
+fi
+
+case ${1:-} in
+save)
+	(cd /var/log && tar -cf - .) | (cd "$persist" && tar -xpf -)
+	;;
+restore)
+	(cd "$persist" && tar -cf - .) | (cd /var/log && tar -xpf -)
+	;;
+*)
+	echo "usage: $0 save|restore" >&2
+	exit 2
+	;;
+esac
