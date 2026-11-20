@@ -5,10 +5,7 @@ RUN pkg install -y -q dtc ca_root_nss mtools python3 hs-ShellCheck \
  && mkdir -p /inputs
 
 WORKDIR /opt/monitor
-COPY . .
-
-RUN shellcheck -s sh -x build.sh root/usr/local/sbin/logsync \
-        root/usr/local/etc/rc.d/*
+COPY manifest.env .
 
 RUN <<'EOF'
 set -eu
@@ -31,5 +28,10 @@ grep -E '^(base|kernel)\.txz' MANIFEST | cut -f 2 | cmp "$digest" -
 rm MANIFEST
 rm "$digest"
 EOF
+
+COPY . .
+
+RUN shellcheck -s sh -x build.sh root/usr/local/sbin/logsync \
+        root/usr/local/etc/rc.d/*
 
 CMD ["/opt/monitor/build.sh"]
