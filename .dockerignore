@@ -1,5 +1,6 @@
 .git/
 out/
+cache/
 .ruff_cache/
 __pycache__/
 **/__pycache__/

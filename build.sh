@@ -7,6 +7,7 @@ cd /opt/monitor
 . ./manifest.env
 
 INPUTS=/inputs
+CACHE=/cache
 OUT=${OUT:-/out}
 img=$OUT/$BOARD.img
 
@@ -57,6 +58,16 @@ try "Base image has no FAT at s1" mcopy -s -p -m b: "$work/fat"
 # Install the system from the release dists
 tar -xf "$INPUTS/base.txz" -C "$work/root" --no-fflags
 tar -xf "$INPUTS/kernel.txz" -C "$work/root" --no-fflags
+
+# Apply the latest patches
+mkdir -p "$work/update" "$CACHE/freebsd-update"
+ln -s "$CACHE/freebsd-update" "$work/update/files"
+cp "$work/root/etc/freebsd-update.conf" "$work/update.conf"
+echo "BackupKernel no" >>"$work/update.conf"
+UNAME_m=arm64 UNAME_i=GENERIC PAGER=cat freebsd-update -f "$work/update.conf" \
+    -b "$work/root" -d "$work/update" --currently-running "$FREEBSD_VERSION" \
+    --not-running-from-cron fetch install
+echo "$tag_note Patched to $(sh "$work/root/bin/freebsd-version" -u)"
 
 # Clean up the FAT boot partition
 find "$work/fat" -maxdepth 1 -name '*.dtb' ! -name "$DTB" -delete
