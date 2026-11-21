@@ -67,7 +67,8 @@ echo "BackupKernel no" >>"$work/update.conf"
 UNAME_m=arm64 UNAME_i=GENERIC PAGER=cat freebsd-update -f "$work/update.conf" \
     -b "$work/root" -d "$work/update" --currently-running "$FREEBSD_VERSION" \
     --not-running-from-cron fetch install
-echo "$tag_note Patched to $(sh "$work/root/bin/freebsd-version" -u)"
+version=$(sh "$work/root/bin/freebsd-version" -u)
+echo "$tag_note Patched to $version"
 
 # Clean up the FAT boot partition
 find "$work/fat" -maxdepth 1 -name '*.dtb' ! -name "$DTB" -delete
@@ -123,4 +124,5 @@ mkimg -s mbr \
 	-o "$img"
 
 try "FAT inconsistent" fsck_msdosfs -n "$work/fat.img"
+echo "$version" >"$OUT/$BOARD.version"
 echo "$tag_done Wrote $img"
